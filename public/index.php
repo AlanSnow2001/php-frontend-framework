@@ -4,26 +4,30 @@ declare(strict_types=1);
 
 session_start();
 
-// Autoloader básico para clases de app/
+// Autoloader básico para clases de app/ y system/
 spl_autoload_register(function (string $class) {
-    // Reemplaza los namespaces por rutas de directorio
-    $prefix = 'App\\';
-    $base_dir = __DIR__ . '/../app/';
+    $prefixes = [
+        'App\\' => __DIR__ . '/../app/',
+        'System\\' => __DIR__ . '/../system/',
+    ];
 
-    $len = strlen($prefix);
-    if (strncmp($prefix, $class, $len) !== 0) {
-        return;
-    }
+    foreach ($prefixes as $prefix => $base_dir) {
+        $len = strlen($prefix);
+        if (strncmp($prefix, $class, $len) !== 0) {
+            continue;
+        }
 
-    $relative_class = substr($class, $len);
-    $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
+        $relative_class = substr($class, $len);
+        $file = $base_dir . str_replace('\\', '/', $relative_class) . '.php';
 
-    if (file_exists($file)) {
-        require $file;
+        if (file_exists($file)) {
+            require $file;
+            return;
+        }
     }
 });
 
-use App\Core\Router;
+use System\Core\Router;
 
 // Cargar las rutas
 $routes = require __DIR__ . '/../routes.php';

@@ -1,0 +1,32 @@
+{
+  "name": "php-frontend-framework",
+  "version": "1.0.0",
+  "description": "Bienvenido a este Mini-Framework PHP diseñado para servir como un **Backend for Frontend (BFF)**. Su principal filosofía es la extrema simplicidad, eliminando la necesidad de frameworks complejos de JavaScript (como React, Angular o Vue) y delegando la interactividad y reactividad directamente al HTML utilizando **HTMX**.",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AlanSnow2001/php-frontend-framework.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/AlanSnow2001/php-frontend-framework/issues"
+  },
+  "homepage": "https://github.com/AlanSnow2001/php-frontend-framework#readme",
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.1",
+    "autoprefixer": "^10.5.0",
+    "postcss": "^8.5.15",
+    "tailwindcss": "^4.3.1",
+    "vite": "^8.0.16"
+  },
+  "dependencies": {
+    "htmx.org": "^2.0.10"
+  }
+}

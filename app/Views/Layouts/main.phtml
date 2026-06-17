@@ -1,0 +1,28 @@
+<?php use System\Core\Vite; ?>
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?= htmlspecialchars($title ?? 'Mini-Framework Reactivo') ?></title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Outfit:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- Vite Assets (Tailwind CSS, HTMX, Alpine, etc) -->
+    <?= Vite::use('resources/js/app.js') ?>
+</head>
+<body>
+    <header class="bg-[#0f172a]/60 backdrop-blur-md border-b border-white/10 p-6 sticky top-0 z-10">
+        <h1 class="text-2xl font-bold bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">
+            Reactive PHP
+        </h1>
+    </header>
+
+    <main class="flex-1 p-8 max-w-6xl mx-auto w-full box-border">
+        <?= $content ?? '' ?>
+    </main>
+</body>
+</html>

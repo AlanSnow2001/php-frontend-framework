@@ -1,0 +1,25 @@
+# Dependencias de Node.js
+# (Se generan al ejecutar "npm install", pesan mucho y nunca deben subirse)
+node_modules/
+
+# Archivos de entorno y configuraciones secretas
+# (Nunca subas contraseñas de bases de datos al repositorio)
+.env
+.env.local
+
+# Archivos compilados por Vite para producción
+# (Dependiendo de cómo hagas el despliegue a producción, a veces se suben y a veces no. 
+# Lo estándar es ignorarlos y que el servidor los compile con "npm run build")
+public/build/
+
+# Archivos de sistema operativo y editores de código (IDE)
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+.gemini/
+.agents/
+
+# Logs de errores de PHP
+error_log
+*.log

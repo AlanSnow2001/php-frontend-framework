@@ -1,148 +1,202 @@
-# Mini-Framework Frontend Reactivo (PHP 8.5 + HTMX)
+# Mini-Framework Frontend Reactivo (PHP 8.5 + HTMX + Vite + Tailwind)
 
 Bienvenido a este Mini-Framework PHP diseñado para servir como un **Backend for Frontend (BFF)**. Su principal filosofía es la extrema simplicidad, eliminando la necesidad de frameworks complejos de JavaScript (como React, Angular o Vue) y delegando la interactividad y reactividad directamente al HTML utilizando **HTMX**.
 
-Este framework está pensado para consumir APIs REST externas y servir vistas HTML rápidas y reactivas.
+Ahora integrado con **Vite** y **Tailwind CSS v4** de forma local, proporcionando una experiencia de desarrollo moderna con Hot Module Replacement (HMR) y construcciones óptimas para producción.
 
 ---
 
-## 🚀 ¿Cómo empezar?
+## 📦 Conceptos Clave: ¿Cómo funcionan Node.js y PHP juntos?
 
-### Requisitos
-- PHP 8.0 o superior (recomendado PHP 8.5 para aprovechar tipado estricto y features modernos).
-- Servidor web (Nginx, Apache) o simplemente usar el servidor integrado de PHP para desarrollo.
+Es completamente normal confundirse sobre cómo funciona Node.js en un proyecto PHP. Aquí te lo aclaramos:
 
-### Levantar el proyecto (Modo Desarrollo)
-Puedes levantar el proyecto rápidamente usando el servidor integrado de PHP. Abre tu terminal en la raíz del proyecto y ejecuta:
+**¿El proyecto trae Node.js o PHP instalados por defecto?**
+**No.** Tanto PHP como Node.js son programas (motores) que deben estar instalados en tu sistema operativo (Windows, Mac, Linux).
+El proyecto solo trae **archivos de texto**. Entre ellos, el archivo `package.json`, que actúa como una "lista de compras" que le dice a Node.js qué herramientas frontend descargar (como Vite, Tailwind y HTMX).
 
+**La separación de roles:**
+1. **Node.js y NPM (Solo para Desarrollo):** Se usa estrictamente para el frontend. Al ejecutar `npm install`, Node descarga las dependencias listadas en `package.json` hacia una carpeta llamada `node_modules` (esta carpeta nunca se sube a producción). Node.js compilará tu CSS de Tailwind y empaquetará HTMX.
+2. **PHP (Desarrollo y Producción):** Es tu backend. Ejecuta el enrutador (`Router`), los controladores y renderiza las vistas (`.phtml`).
+
+> [!IMPORTANT]
+> **No necesitas Node.js en tu servidor de producción.** Una vez que compilas tus assets con `npm run build`, se genera una carpeta `public/build/`. Esa carpeta compilada es lo único de frontend que necesitas subir a tu hosting (junto con el código PHP). 
+
+---
+
+## 🚀 Requisitos e Instalación
+
+### Requisitos del Sistema
+- **PHP 8.0 o superior** (Se recomienda PHP 8.5 para tipado estricto).
+- **Node.js 18+** y NPM (Solo necesario en la computadora donde programas).
+- Servidor web (Nginx, Apache) o simplemente usar el servidor integrado de PHP para desarrollo local.
+
+### Levantar el Proyecto (Modo Desarrollo)
+
+1. **Instala las dependencias de Node.js**:
+   Abre tu terminal en la raíz del proyecto y ejecuta:
+   ```bash
+   npm install
+   ```
+   *Esto creará la carpeta `node_modules` e instalará Vite, Tailwind y HTMX.*
+
+2. **Levanta el servidor de assets (Vite)**:
+   ```bash
+   npm run dev
+   ```
+   *Deja esta terminal abierta. Vite vigilará tus cambios en CSS y JS para inyectarlos en tiempo real.*
+
+3. **Levanta el servidor de PHP**:
+   Abre **otra ventana de terminal** y ejecuta:
+   ```bash
+   php -S localhost:8000 -t public/
+   ```
+4. Visita `http://localhost:8000` en tu navegador. 
+
+### Modo Producción
+Cuando estés listo para subir tu página al servidor real, debes ejecutar:
 ```bash
-php -S localhost:8000 -t public/
+npm run build
 ```
-
-Luego, visita `http://localhost:8000` en tu navegador.
+Esto creará archivos minificados y optimizados en `public/build/`. Sube todo el proyecto a tu servidor, excepto la carpeta `node_modules`.
 
 ---
 
-## 📁 Estructura del Proyecto y Dónde Escribir tu Código
+## 🔄 ¿Cómo mantengo actualizado el framework?
 
-El framework impone una estructura de directorios estricta y predecible:
+Mantener tu proyecto al día es muy sencillo:
 
-```text
-/mi-framework-front
- ├── /app
- │    ├── /Controllers      👉 Aquí creas los Controladores (lógica de negocio y vistas).
- │    ├── /Core             👉 Núcleo del framework (¡No modificar a menos que sepas lo que haces!).
- │    └── /Views            👉 Aquí creas los archivos .phtml (HTML con variables PHP).
- │         └── layout.phtml 
- ├── /public
- │    └── index.php         👉 Punto de entrada principal (Front Controller).
- ├── routes.php             👉 Aquí registras todas tus URLs.
- └── nginx.conf.example     👉 Configuración sugerida para Nginx.
+1. **Actualizar Vite, Tailwind y HTMX (Frontend)**:
+   Abre tu terminal y ejecuta `npm update`. Esto buscará versiones menores o parches nuevos (según lo definido en tu `package.json`) de forma segura. Si quieres forzar la instalación de una versión mayor nueva de un paquete, puedes hacer `npm install nombre_paquete@latest`.
+2. **Actualizar PHP o Node.js**:
+   Deberás descargar e instalar las nuevas versiones directamente desde sus páginas oficiales hacia tu sistema operativo.
+3. **Actualizar el Núcleo del Framework (`system/Core`)**:
+   El código dentro de la carpeta `system/Core` es el corazón de este mini-framework. Para actualizarlo, simplemente reemplaza esa carpeta con la versión más reciente del repositorio oficial del framework. ¡Por esta razón es vital que **nunca modifiques** los archivos dentro de `system/Core`!
+
+---
+
+## 📖 Guía de Uso Completa (Paso a Paso)
+
+El marco impone un patrón estricto MVC simplificado. Para crear una nueva página (ejemplo: un panel de "Productos"), siempre debes seguir 3 pasos:
+
+### 1. Registrar la Ruta (`routes.php`)
+Este archivo es el "mapa" de tu aplicación. Recibe la URL del navegador y decide a qué Controlador enviarla.
+
+Abre `routes.php` y añade tu ruta:
+```php
+<?php
+use App\Controllers\ProductosController;
+
+return [
+    'GET' => [
+        '/' => [\App\Controllers\UsuariosController::class, 'index'],
+        '/productos' => [ProductosController::class, 'index'], // <--- Nueva ruta GET
+    ],
+    'POST' => [
+        '/productos/guardar' => [ProductosController::class, 'guardar'], // <--- Ruta POST para formularios o HTMX
+    ]
+];
 ```
 
-### ¿Cómo crear una nueva página/funcionalidad?
+### 2. Crear el Controlador (`app/Controllers/ProductosController.php`)
+El controlador es el cerebro. Obtiene datos (de una API o base de datos) y se los pasa a la vista. Todo controlador **debe heredar** de `System\Core\Controller`.
 
-Para crear una nueva página (por ejemplo, una página de "Productos"), sigue estos 3 pasos:
-
-#### 1. Crea la Vista (`app/Views/productos.phtml`)
-Crea un archivo con el diseño en HTML. Puedes usar `<?= $variable ?>` para imprimir datos pasados por el controlador.
-
-#### 2. Crea el Controlador (`app/Controllers/ProductosController.php`)
-Los controladores extienden de `App\Core\Controller`. Crea una clase y añade un método (ej. `index()`) que obtenga los datos y llame a `$this->render()`:
-
+Crea el archivo:
 ```php
 <?php
 namespace App\Controllers;
-use App\Core\Controller;
+use System\Core\Controller;
 
-class ProductosController extends Controller {
-    public function index(): void {
-        // Aquí podrías usar HttpClient::get('https://api.tu-backend.com/productos')
-        $datos = ['title' => 'Lista de Productos', 'productos' => ['Manzana', 'Pera']];
-        $this->render('productos', $datos); 
+class ProductosController extends Controller 
+{
+    public function index(): void 
+    {
+        // 1. Aquí podrías pedir datos usando HttpClient
+        $datos = [
+            'title' => 'Lista de Productos',
+            'productos' => ['Teclado', 'Ratón', 'Monitor']
+        ];
+        
+        // 2. Renderizar la vista
+        // Formato: $this->render('nombre_vista', $datos_array, 'nombre_layout_opcional');
+        $this->render('productos/index', $datos); 
     }
 }
 ```
 
-#### 3. Registra la Ruta (`routes.php`)
-Dile al framework qué URL debe apuntar a tu nuevo controlador:
+### 3. Crear las Vistas y usar Layouts (`app/Views/`)
+El framework usa archivos `.phtml` (HTML que permite inyectar variables PHP). 
+Basado en el paso anterior, debemos crear el archivo `app/Views/productos/index.phtml`:
 
-```php
-return [
-    'GET' => [
-        '/' => [UsuariosController::class, 'index'],
-        '/productos' => [\App\Controllers\ProductosController::class, 'index'], // <--- Nueva ruta
-    ],
-    // ...
-];
+```html
+<!-- app/Views/productos/index.phtml -->
+<div class="glass-panel">
+    <h2>Catálogo de Productos</h2>
+    <ul>
+        <!-- Usamos sintaxis corta de PHP para imprimir variables -->
+        <?php foreach ($productos as $producto): ?>
+            <li class="text-indigo-400 font-bold"><?= htmlspecialchars($producto) ?></li>
+        <?php endforeach; ?>
+    </ul>
+</div>
 ```
+
+**¿Cómo funcionan los Layouts?**
+Si te fijas, el código de arriba no tiene la etiqueta `<html>` ni `<body>`. Eso es porque el Controlador Base (`System\Core\Controller`) automáticamente envuelve tu vista dentro de un "Layout".
+
+- El layout por defecto está en `app/Views/Layouts/main.phtml`. Contiene el menú de navegación, la importación de Tailwind y Vite, etc.
+- Puedes crear múltiples layouts (ej. `admin_layout.phtml`). Para usar uno específico, pásalo como tercer parámetro en tu controlador:
+  ```php
+  $this->render('productos/index', $datos, 'admin_layout');
+  ```
 
 ---
 
-## ⚡ ¿Qué es HTMX y cómo funciona aquí?
+## ⚡ HTMX: Reactividad sin escribir JavaScript
 
-**HTMX** es una pequeña librería de JavaScript (incluida en el `<head>` de `layout.phtml`) que te permite acceder a AJAX, transiciones CSS, WebSockets y Server Sent Events directamente desde atributos en tu HTML.
+HTMX está preinstalado. La magia ocurre cuando añades atributos `hx-*` a tus elementos HTML.
 
-**El Rol de HTMX:**
-En lugar de escribir código JavaScript (fetch/axios) para enviar datos o actualizar partes de la pantalla, HTMX lo hace declarativamente por ti. 
-
-### ¿Cómo sabe el botón "Eliminar" a dónde ir? (El caso de `usuarios.phtml`)
-
-Si observas el botón de eliminar en `app/Views/usuarios.phtml`:
-
+**Ejemplo de un botón Eliminar (sin recargar la página):**
+En tu vista (`.phtml`), puedes poner:
 ```html
-<button class="btn-delete"
-        hx-post="/usuarios/eliminar" 
-        hx-vals='{"id": <?= $u['id'] ?>}'
-        hx-target="closest tr" 
-        hx-swap="outerHTML swap:0.3s">
+<button 
+    hx-post="/productos/eliminar" 
+    hx-vals='{"id": 5}'
+    hx-target="closest tr" 
+    hx-swap="outerHTML">
     Eliminar
 </button>
 ```
 
-Aquí está la magia explicada paso a paso:
+**¿Qué sucede al hacer clic?**
+1. **`hx-post`**: HTMX hace una petición AJAX (en segundo plano) tipo POST a `/productos/eliminar`.
+2. **`hx-vals`**: Adjunta los datos `{id: 5}` a la petición.
+3. El Router en `routes.php` dirige esa URL a un método en tu Controlador.
+4. El Controlador borra el registro y, como fue una llamada HTMX, **el framework es lo suficientemente inteligente para NO inyectar el Layout maestro**. Retornará solo un texto vacío o una pequeña porción de HTML.
+5. **`hx-target` y `hx-swap`**: HTMX toma esa respuesta del servidor, busca la fila (`<tr>` más cercano) y la reemplaza (`outerHTML`) por la respuesta (al ser vacía, la fila simplemente desaparece de la pantalla).
 
-1. **`hx-post="/usuarios/eliminar"`**: Esto le dice a HTMX: *"Cuando alguien haga clic en este botón, haz una petición HTTP POST a la URL `/usuarios/eliminar` en segundo plano (AJAX)"*.
-2. **`hx-vals='{"id": 1}'`**: Adjunta datos a la petición POST. En este caso, envía el ID del usuario.
-3. **El enrutador (`routes.php`) entra en acción**: 
-   La petición llega a `public/index.php`, que llama al `Router`. El Router revisa el archivo `routes.php` y encuentra esto:
-   ```php
-   'POST' => [
-       '/usuarios/eliminar' => [UsuariosController::class, 'eliminar'],
-   ]
-   ```
-   ¡Ahí está la conexión! El router ve que la URL `/usuarios/eliminar` bajo el método `POST` está conectada al método `eliminar()` de la clase `UsuariosController`.
-4. **El Controlador responde (`UsuariosController::eliminar()`)**:
-   El método recibe la petición, realiza la acción (ej. borrar en base de datos) y retorna HTML (o en este caso, una respuesta vacía `""`).
-5. **`hx-target="closest tr"` y `hx-swap="outerHTML"`**: 
-   HTMX recibe la respuesta del controlador. `hx-target` le dice: *"Busca el elemento `<tr>` (la fila de la tabla) más cercano a este botón"*. Luego, `hx-swap` le dice: *"Reemplaza todo ese `<tr>` (outerHTML) con la respuesta del servidor"*. Como el servidor respondió en blanco (`""`), la fila simplemente desaparece de la pantalla de forma reactiva, **¡sin necesidad de recargar toda la página!**
+Todo esto sin escribir ni una sola línea de JavaScript, logrando una interfaz ultra rápida.
 
 ---
 
-## 🛠️ Utilidades del Core
+## 🛡️ Utilidades Extra: Llamadas a APIs REST
 
-### Realizar llamadas a APIs REST Externas (`HttpClient`)
-Como este framework es un BFF (Backend For Frontend), es muy común que necesites pedir datos a otros microservicios. Para ello, utiliza la clase `App\Core\HttpClient`:
+Dado que este framework actúa como Backend for Frontend (BFF), es probable que no te conectes directo a una base de datos, sino a un microservicio externo en Java, Python, Go, etc.
+
+Para eso usamos `System\Core\HttpClient`:
 
 ```php
-use App\Core\HttpClient;
+use System\Core\HttpClient;
 
 // Petición GET simple
-$jsonResponse = HttpClient::get('https://api.ejemplo.com/users');
+$jsonResponse = HttpClient::get('https://api.empresa.com/users');
 
 // Petición POST con body JSON
-$respuesta = HttpClient::post('https://api.ejemplo.com/users', [
-    'nombre' => 'Juan',
-    'rol' => 'Admin'
+$respuesta = HttpClient::post('https://api.empresa.com/users', [
+    'nombre' => 'Juan'
 ]);
 
-// Peticiones con headers de Autorización (Bearer Token)
-$seguro = HttpClient::get('https://api.ejemplo.com/perfil', [
+// Peticiones seguras con Headers (Bearer Tokens)
+$seguro = HttpClient::get('https://api.empresa.com/perfil', [
     'Authorization: Bearer mi_token_secreto'
 ]);
 ```
-
-### El Controlador Base (`App\Core\Controller`)
-El controlador base posee la función protegida `$this->render($vista, $datos)`. Esta función es inteligente gracias a HTMX:
-- Si visitas la URL de forma tradicional desde el navegador, empaquetará tu vista (ej. `usuarios.phtml`) dentro del cascarón `layout.phtml` (el cual tiene el `<html>`, `<head>`, etc.).
-- Si la petición la hizo HTMX (revisando si existe la cabecera HTTP `HX-Request`), el controlador **no** incluirá el `layout.phtml` y devolverá solo el trozo de HTML necesario. Esto hace que la aplicación sea increíblemente rápida.

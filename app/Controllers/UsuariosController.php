@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Controllers;
 
-use App\Core\Controller;
+use System\Core\Controller;
 
 class UsuariosController extends Controller
 {
